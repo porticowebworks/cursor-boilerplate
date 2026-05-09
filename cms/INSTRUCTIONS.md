@@ -6,7 +6,7 @@ Use this file as the instruction block when scaffolding or extending the `cms/` 
 
 ```bash
 cd cms
-npx create-payload-app@latest . --no-git --template blank
+npx create-payload-app@latest
 ```
 
 ## Plugins (baseline)
@@ -20,6 +20,14 @@ npm install \
 ```
 
 Adjust versions to match the generated Payload major version.
+
+## Windows (optional native bindings)
+
+Install if postinstall or builds complain about missing MSVC bindings (run from `cms/` after the project exists):
+
+```bash
+npm install @oxc-transform/binding-win32-x64-msvc@^0.126.0 @rollup/rollup-win32-x64-msvc@^4.60.2 @oxc-minify/binding-win32-x64-msvc@^0.126.0 lightningcss-win32-x64-msvc@^1.32.0
+```
 
 ## Environment
 
@@ -59,3 +67,4 @@ ADMIN_PASSWORD=change-this-immediately-after-first-login
 
 - Keep `show_in_rest` and REST-exposed meta aligned with how the Nuxt app consumes collections (see workspace CPT/builder exposure rules if applicable).
 - Do not commit secrets or `.env`; add `cms/.env.example` with dummy values if the repo needs a template.
+

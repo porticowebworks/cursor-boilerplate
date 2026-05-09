@@ -23,6 +23,14 @@ npx nuxi module add nuxt-ai-ready
 npm install @nuxt/ui tailwindcss
 ```
 
+### Windows (optional native bindings)
+
+Install if postinstall or builds complain about missing MSVC bindings (run from the Nuxt project root after `npm install`):
+
+```bash
+npm install @oxc-transform/binding-win32-x64-msvc@^0.126.0 @rollup/rollup-win32-x64-msvc@^4.60.2 @oxc-minify/binding-win32-x64-msvc@^0.126.0 lightningcss-win32-x64-msvc@^1.32.0
+```
+
 ### AI skills
 
 ```bash

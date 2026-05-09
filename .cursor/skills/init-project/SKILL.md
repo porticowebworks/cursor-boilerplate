@@ -8,37 +8,38 @@ until all required answers are collected.
 
 ## Step 1 — Ask These Questions First
 
-Ask all questions in one message. Do not scaffold anything yet.
+Ask only these two questions. Do not ask anything else. Do not scaffold anything yet.
 
 ```
-Before I set up the project, I need a few details:
+Before I set up the project, I need two details:
 
-REQUIRED
-1. Project name — lowercase, hyphenated (used for folder name, package names, and staging URLs)
+1. Project name — lowercase, hyphenated
    e.g. kowju, spunic, welnez
 
-2. Production domain (client's live domain, no trailing slash)
+2. Production domain (no trailing slash)
    e.g. kowju.com
-
-3. Node version preference
-   Default: 20 — confirm or specify otherwise
-
-OPTIONAL (skip to use defaults)
-4. Database — SQLite (default) or PostgreSQL?
-5. Payload plugins needed beyond defaults?
-   Defaults: @payloadcms/plugin-form-builder, @payloadcms/plugin-seo,
-             @payloadcms/plugin-redirects, @payloadcms/plugin-nested-docs
-6. Any specific collections needed from day one?
-   Defaults created: pages, blog-posts, rooms, media, users
-
-The following will be auto-derived from your answers:
-  Staging web:  [project-name]-web-staging.zescloud.net
-  Staging CMS:  [project-name]-cms-staging.zescloud.net
-  Production CMS: cms.[production-domain]
-  Development: always http://localhost:3000 (web) and http://localhost:3001 (cms)
 ```
 
-Wait for answers before proceeding to Step 2.
+All other settings are fixed defaults — do not ask about them:
+
+| Setting | Fixed value |
+|---|---|
+| Node version | 20 (compatible with Nuxt 4 and latest Payload) |
+| Database | SQLite |
+| Payload plugins | `plugin-form-builder`, `plugin-seo`, `plugin-redirects`, `plugin-nested-docs` |
+| Collections | `pages`, `blog-posts` (Posts/Categories/Tags), `rooms`, `media`, `users` |
+
+The following are auto-derived — never ask the developer for these:
+
+| Variable | Value |
+|---|---|
+| Staging web | `[project-name]-web-staging.zescloud.net` |
+| Staging CMS | `[project-name]-cms-staging.zescloud.net` |
+| Production CMS | `cms.[production-domain]` |
+| Local web | `http://localhost:3000` |
+| Local CMS | `http://localhost:3001` |
+
+Wait for the two answers before proceeding to Step 2.
 
 ---
 
@@ -364,57 +365,7 @@ npx create-payload-app@latest . --no-git --template blank
 
 Install plugins:
 ```bash
-npm install @payloadcms/plugin-form-builder \
-            @payloadcms/plugin-seo \
-            @payloadcms/plugin-redirects \
-            @payloadcms/plugin-nested-docs
-```
-
-Update `cms/src/payload.config.ts`:
-```typescript
-import { buildConfig }       from 'payload'
-import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
-import { seoPlugin }         from '@payloadcms/plugin-seo'
-import { redirectsPlugin }   from '@payloadcms/plugin-redirects'
-import { nestedDocsPlugin }  from '@payloadcms/plugin-nested-docs'
-import { Pages }             from './collections/Pages'
-import { Rooms }             from './collections/Rooms'
-import { Media }             from './collections/Media'
-import { Users }             from './collections/Users'
-import { SiteSettings }      from './globals/SiteSettings'
-import { BlogPosts }         from './collections/blog/BlogPosts'
-import { BlogCategories }    from './collections/blog/BlogCategories'
-import { BlogTags }          from './collections/blog/BlogTags'
-
-export default buildConfig({
-  // Order controls sidebar position within each admin group.
-  // Blog group renders: Posts → Categories → Tags (matches array order below)
-  collections: [Pages, Rooms, BlogPosts, BlogCategories, BlogTags, Media, Users],
-  globals:     [SiteSettings],
-  plugins: [
-    formBuilderPlugin({ fields: { payment: false } }),
-    seoPlugin({
-      uploadsCollection: 'media',
-      collections: ['pages', 'blog-posts', 'rooms'],
-      generateTitle:       ({ doc }) => `${doc.title} — ${process.env.PAYLOAD_PUBLIC_SITE_NAME || ''}`,
-      generateDescription: ({ doc }) => doc.excerpt || '',
-      generateURL: ({ doc, collectionSlug }) => {
-        const base = process.env.CORS_URL || ''
-        if (collectionSlug === 'blog-posts') return `${base}/blog/${doc.slug}`
-        return `${base}/${doc.slug}`
-      },
-    }),
-    redirectsPlugin({ collections: ['pages', 'blog-posts'] }),
-    nestedDocsPlugin({ collections: ['pages'] }),
-  ],
-  admin: {
-    user: Users.slug,
-    meta: { titleSuffix: '— CMS' },
-  },
-  typescript: { outputFile: 'types/payload-types.ts' },
-  cors: [process.env.CORS_URL || ''],
-  csrf: [process.env.CORS_URL || ''],
-})
+npm install @payloadcms/plugin-form-builder
 ```
 
 If PostgreSQL was selected in Step 1:
@@ -460,12 +411,9 @@ Create folder structure inside `cms/`:
 cms/
 └── src/
     ├── collections/
-    │   ├── blog/
-    │   │   ├── BlogPosts.ts
-    │   │   ├── BlogCategories.ts
-    │   │   └── BlogTags.ts
     │   ├── blocks/
     │   ├── Pages.ts
+    │   ├── BlogPosts.ts
     │   ├── Rooms.ts
     │   ├── Media.ts
     │   └── Users.ts
@@ -479,250 +427,6 @@ cms/
 Scaffold each collection, global, and access file using the
 `content-management-guidelines` skill — standard fields, access control, and the Media
 collection image sizes.
-
-### Blog Collections — Scaffold All Three
-
-Create `cms/src/collections/blog/BlogPosts.ts`:
-
-```typescript
-import type { CollectionConfig } from 'payload'
-import {
-  lexicalEditor, BoldFeature, ItalicFeature, UnderlineFeature,
-  StrikethroughFeature, SubscriptFeature, SuperscriptFeature,
-  InlineCodeFeature, LinkFeature, UnorderedListFeature, OrderedListFeature,
-  ChecklistFeature, BlockquoteFeature, HeadingFeature,
-  HorizontalRuleFeature, UploadFeature, BlocksFeature,
-} from '@payloadcms/richtext-lexical'
-import { isAdmin, isAdminOrEditor, isPublishedOrLoggedIn } from '../../access'
-
-const CalloutBlock = {
-  slug: 'callout',
-  labels: { singular: 'Callout', plural: 'Callouts' },
-  fields: [
-    {
-      name: 'type', type: 'select', defaultValue: 'info',
-      options: [
-        { label: 'Info',    value: 'info'    },
-        { label: 'Warning', value: 'warning' },
-        { label: 'Tip',     value: 'tip'     },
-      ],
-    },
-    { name: 'content', type: 'textarea', required: true },
-  ],
-}
-
-export const BlogPosts: CollectionConfig = {
-  slug: 'blog-posts',
-  labels: { singular: 'Post', plural: 'Posts' },
-  admin: {
-    useAsTitle: 'title',
-    group: 'Blog',
-    defaultColumns: ['title', 'status', 'publishedAt', 'author', 'updatedAt'],
-    description: 'Blog posts, articles, and news.',
-    livePreview: {
-      url: ({ data }) => `${process.env.CORS_URL}/blog/${data?.slug}/preview`,
-    },
-  },
-  versions: {
-    maxPerDoc: 20,
-    drafts: {
-      autosave: { interval: 2000 },
-    },
-  },
-  access: {
-    read:         isPublishedOrLoggedIn,
-    create:       isAdminOrEditor,
-    update:       isAdminOrEditor,
-    delete:       isAdmin,
-    readVersions: isAdminOrEditor,
-  },
-  hooks: {
-    beforeChange: [
-      ({ data, operation }) => {
-        if (data.status === 'published' && !data.publishedAt && operation === 'update') {
-          return { ...data, publishedAt: new Date().toISOString() }
-        }
-        return data
-      },
-    ],
-  },
-  fields: [
-    { name: 'title',    type: 'text',   required: true, maxLength: 120 },
-    {
-      name: 'slug', type: 'text', required: true, unique: true, index: true,
-      admin: { position: 'sidebar', description: 'Auto-generated from title. Do not change after publishing.' },
-      hooks: {
-        beforeValidate: [
-          ({ value, data }) =>
-            value || data?.title?.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        ],
-      },
-    },
-    {
-      name: 'excerpt', type: 'textarea', required: true, maxLength: 300,
-      admin: { description: 'Short summary for blog listing, social shares, and search snippets. 150–300 characters.' },
-    },
-    {
-      name: 'featuredImage', type: 'upload', relationTo: 'media', required: true,
-      admin: { description: 'Main image. Used in listings and as OG image. Minimum 1200×630px.' },
-    },
-    {
-      name: 'content', type: 'richText', required: true,
-      editor: lexicalEditor({
-        features: () => [
-          HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-          BoldFeature(), ItalicFeature(), UnderlineFeature(), StrikethroughFeature(),
-          SubscriptFeature(), SuperscriptFeature(), InlineCodeFeature(),
-          LinkFeature(), UnorderedListFeature(), OrderedListFeature(),
-          ChecklistFeature(), BlockquoteFeature(), HorizontalRuleFeature(),
-          UploadFeature(),
-          BlocksFeature({ blocks: [CalloutBlock] }),
-        ],
-      }),
-    },
-    {
-      name: 'status', type: 'select', required: true, defaultValue: 'draft',
-      options: [
-        { label: 'Draft',     value: 'draft'     },
-        { label: 'Published', value: 'published' },
-        { label: 'Archived',  value: 'archived'  },
-      ],
-      admin: { position: 'sidebar', description: 'Draft = hidden. Archived = hidden but kept.' },
-    },
-    {
-      name: 'publishedAt', type: 'date',
-      admin: { position: 'sidebar', date: { pickerAppearance: 'dayAndTime' }, description: 'Auto-set on first publish.' },
-    },
-    {
-      name: 'author', type: 'relationship', relationTo: 'users', required: true,
-      admin: { position: 'sidebar' },
-    },
-    {
-      name: 'categories', type: 'relationship', relationTo: 'blog-categories', hasMany: true,
-      admin: { position: 'sidebar' },
-    },
-    {
-      name: 'tags', type: 'relationship', relationTo: 'blog-tags', hasMany: true,
-      admin: { position: 'sidebar' },
-    },
-    {
-      name: 'readingTimeMinutes', type: 'number',
-      admin: { position: 'sidebar', readOnly: true, description: 'Auto-calculated from content.' },
-      hooks: {
-        beforeChange: [
-          ({ data }) => {
-            const words = JSON.stringify(data?.content || '').split(/\s+/).length
-            return Math.max(1, Math.ceil(words / 200))
-          },
-        ],
-      },
-    },
-    {
-      name: 'isFeatured', type: 'checkbox', defaultValue: false,
-      admin: { position: 'sidebar', description: 'Pin to featured position on blog listing.' },
-    },
-    {
-      name: 'disableIndex', type: 'checkbox', defaultValue: false,
-      admin: { position: 'sidebar', description: 'Add noindex to this post.' },
-    },
-    {
-      name: 'relatedPosts', type: 'relationship', relationTo: 'blog-posts', hasMany: true, maxRows: 3,
-      admin: { description: 'Manually curated related posts. Max 3.' },
-    },
-  ],
-}
-```
-
-Create `cms/src/collections/blog/BlogCategories.ts`:
-
-```typescript
-import type { CollectionConfig } from 'payload'
-import { isAdmin, isAdminOrEditor, isPublic } from '../../access'
-
-export const BlogCategories: CollectionConfig = {
-  slug: 'blog-categories',
-  labels: { singular: 'Category', plural: 'Categories' },
-  admin: {
-    useAsTitle: 'name',
-    group: 'Blog',
-    defaultColumns: ['name', 'slug', 'description'],
-    description: 'Top-level content groupings for blog posts.',
-  },
-  access: {
-    read:   isPublic,
-    create: isAdminOrEditor,
-    update: isAdminOrEditor,
-    delete: isAdmin,
-  },
-  fields: [
-    { name: 'name', type: 'text', required: true, maxLength: 80 },
-    {
-      name: 'slug', type: 'text', required: true, unique: true, index: true,
-      admin: { description: 'Auto-generated from name. Do not change after publishing.' },
-      hooks: {
-        beforeValidate: [
-          ({ value, data }) =>
-            value || data?.name?.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        ],
-      },
-    },
-    {
-      name: 'description', type: 'textarea', maxLength: 200,
-      admin: { description: 'Shown on the category archive page.' },
-    },
-    {
-      name: 'coverImage', type: 'upload', relationTo: 'media',
-      admin: { description: 'Optional hero image for the category archive page.' },
-    },
-    {
-      name: 'parent', type: 'relationship', relationTo: 'blog-categories',
-      admin: { description: 'Optional parent for hierarchical categories.' },
-    },
-    { name: 'order', type: 'number', defaultValue: 0, admin: { description: 'Sort order. Lower = first.' } },
-  ],
-}
-```
-
-Create `cms/src/collections/blog/BlogTags.ts`:
-
-```typescript
-import type { CollectionConfig } from 'payload'
-import { isAdmin, isAdminOrEditor, isPublic } from '../../access'
-
-export const BlogTags: CollectionConfig = {
-  slug: 'blog-tags',
-  labels: { singular: 'Tag', plural: 'Tags' },
-  admin: {
-    useAsTitle: 'name',
-    group: 'Blog',
-    defaultColumns: ['name', 'slug'],
-    description: 'Granular labels for filtering and discovery.',
-  },
-  access: {
-    read:   isPublic,
-    create: isAdminOrEditor,
-    update: isAdminOrEditor,
-    delete: isAdmin,
-  },
-  fields: [
-    { name: 'name', type: 'text', required: true, maxLength: 50 },
-    {
-      name: 'slug', type: 'text', required: true, unique: true, index: true,
-      admin: { description: 'Auto-generated from name.' },
-      hooks: {
-        beforeValidate: [
-          ({ value, data }) =>
-            value || data?.name?.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        ],
-      },
-    },
-    {
-      name: 'description', type: 'text', maxLength: 160,
-      admin: { description: 'Optional description for the tag archive page.' },
-    },
-  ],
-}
-```
 
 Create `cms/public/media/.gitkeep` (empty file to preserve the directory in git).
 

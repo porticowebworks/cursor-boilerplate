@@ -189,7 +189,7 @@ Nuxt 4 + Payload CMS monorepo.
 See DNS Configuration section below before deploying to staging or production.
 
 ## Quick Start
-See `web/.env.example` and `cms/.env.example` for required variables.
+See **Environment variables** in `web/README.md` and `cms/.env.example` for required variables.
 
 \`\`\`bash
 npm install
@@ -234,121 +234,11 @@ Install dev dependencies:
 npm install -D typescript vue-tsc
 ```
 
-Create `web/.env.example`:
-```bash
-# ─────────────────────────────────────────────
-# Nuxt 4 — Web App Environment Variables
-# Copy to .env and fill in values. Never commit .env.
-# ─────────────────────────────────────────────
+Create `web/.env` using the **Environment variables** section in `web/README.md`.
 
-# Public URL of this Nuxt app (no trailing slash)
-# Development: http://localhost:3000
-# Staging:     https://[project-name]-web-staging.zescloud.net
-# Production:  https://[production-domain]
-NUXT_PUBLIC_SITE_URL=http://localhost:3000
+Add `web/nuxt.config.ts` using the **`nuxt.config.ts`** section in `web/README.md`.
 
-# Site name — used by sitemap, schema-org, og-image modules
-NUXT_PUBLIC_SITE_NAME=[Project Name]
-
-# Payload CMS API base URL (no trailing slash)
-# Development: http://localhost:3001
-# Staging:     https://[project-name]-cms-staging.zescloud.net
-# Production:  https://cms.[production-domain]
-NUXT_PUBLIC_CMS_URL=http://localhost:3001
-
-# Server-side API key for Payload requests (never expose to browser)
-CMS_API_KEY=your-api-key-here
-```
-
-Update `web/nuxt.config.ts`:
-```typescript
-export default defineNuxtConfig({
-  srcDir: 'app/',
-
-  future: {
-    compatibilityVersion: 4,
-  },
-
-  modules: [
-    '@nuxt/icon',
-    '@nuxt/fonts',
-    '@nuxt/image',
-    '@nuxt/ui',
-    '@nuxtjs/robots',
-    '@nuxtjs/sitemap',
-    'nuxt-schema-org',
-    'nuxt-seo-utils',
-    'nuxt-og-image',
-    'nuxt-ai-ready',
-  ],
-
-  nitro: {
-    preset: 'static',
-    prerender: {
-      crawlLinks: true,
-      routes: ['/', '/sitemap.xml'],
-      failOnError: false,
-    },
-    compressPublicAssets: true,
-  },
-
-  routeRules: {
-    '/**': { prerender: true },
-    '/api/**': { prerender: false },
-  },
-
-  // Site identity — required by sitemap, schema-org, og-image
-  site: {
-    url:  process.env.NUXT_PUBLIC_SITE_URL,
-    name: '[Project Name]',  // Replace with actual project name from Step 1
-  },
-
-  image: {
-    provider: 'ipx',
-    quality: 80,
-    format: ['webp', 'avif', 'jpeg'],
-  },
-
-  fonts: {
-    defaults: {
-      weights: [400, 500, 700],
-      styles: ['normal'],
-      subsets: ['latin'],
-    },
-  },
-
-  runtimeConfig: {
-    cmsApiKey: process.env.CMS_API_KEY,
-    public: {
-      cmsUrl:  process.env.NUXT_PUBLIC_CMS_URL,
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
-    },
-  },
-})
-```
-
-Create folder structure inside `web/`:
-```
-web/
-└── app/
-    ├── assets/
-    │   └── styles/
-    │       ├── reset.css
-    │       ├── tokens.css
-    │       └── utilities.css
-    ├── components/
-    │   ├── global/
-    │   ├── layout/
-    │   ├── ui/
-    │   ├── blocks/
-    │   └── forms/
-    ├── composables/
-    ├── features/
-    ├── layouts/
-    │   └── default.vue
-    └── pages/
-        └── index.vue
-```
+Create the folder structure shown under **Folder structure** in `web/README.md`.
 
 Populate `web/app/assets/styles/reset.css`, `tokens.css`, and `utilities.css` using the
 component-based-design-system skill.
@@ -446,7 +336,7 @@ This installs dependencies for both workspaces in one command.
 ## Step 7 — Copy `.env.example` to `.env`
 
 ```bash
-cp web/.env.example web/.env
+# Create web/.env from **Environment variables** in web/README.md
 cp cms/.env.example cms/.env
 ```
 

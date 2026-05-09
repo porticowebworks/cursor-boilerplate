@@ -189,7 +189,7 @@ Nuxt 4 + Payload CMS monorepo.
 See DNS Configuration section below before deploying to staging or production.
 
 ## Quick Start
-See **Environment variables** in `web/README.md` and `cms/.env.example` for required variables.
+See **Environment variables** in `NUXT-INSTRUCTIONS.md` (repo root) and `cms/.env.example` for required variables.
 
 \`\`\`bash
 npm install
@@ -234,11 +234,11 @@ Install dev dependencies:
 npm install -D typescript vue-tsc
 ```
 
-Create `web/.env` using the **Environment variables** section in `web/README.md`.
+Create `web/.env` using the **Environment variables** section in `NUXT-INSTRUCTIONS.md`.
 
-Add `web/nuxt.config.ts` using the **`nuxt.config.ts`** section in `web/README.md`.
+Add `web/nuxt.config.ts` using the **`nuxt.config.ts`** section in `NUXT-INSTRUCTIONS.md`.
 
-Create the folder structure shown under **Folder structure** in `web/README.md`.
+Create the folder structure shown under **Folder structure** in `NUXT-INSTRUCTIONS.md`.
 
 Populate `web/app/assets/styles/reset.css`, `tokens.css`, and `utilities.css` using the
 component-based-design-system skill.
@@ -246,6 +246,8 @@ component-based-design-system skill.
 ---
 
 ## Step 5 — Scaffold `cms/` (Payload CMS)
+
+Use `PAYLOAD-INSTRUCTIONS.md` (repo root) for ports, baseline plugins, `package.json` script shape, and env alignment.
 
 Run:
 ```bash
@@ -336,7 +338,7 @@ This installs dependencies for both workspaces in one command.
 ## Step 7 — Copy `.env.example` to `.env`
 
 ```bash
-# Create web/.env from **Environment variables** in web/README.md
+# Create web/.env from **Environment variables** in NUXT-INSTRUCTIONS.md
 cp cms/.env.example cms/.env
 ```
 

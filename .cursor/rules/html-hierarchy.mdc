@@ -1,0 +1,21 @@
+---
+description: Enforce heading hierarchy and semantic landmark structure in markup files.
+globs: **/*.vue, **/*.html
+alwaysApply: false
+---
+
+- Use exactly one `h1` per page, and place it in `main` (not site `header`).
+- Never skip heading levels downward (`h1` -> `h3` is invalid); use headings for structure, not styling.
+- Use semantic landmarks correctly: exactly one `main`; root `header`/`footer` outside `main`.
+- Every `section` must have a heading; use `div` for non-semantic layout wrappers.
+- Use `article` only for self-contained content; `aside` only for supplementary content.
+- When multiple `nav`/`section`/`aside` landmarks exist, disambiguate with `aria-label`/`aria-labelledby`.
+
+- 🚩 Multiple `h1` on a page.
+- 🚩 Heading level skipped downward.
+- 🚩 More than one `main` element.
+- 🚩 `section` without heading.
+- 🚩 Root `header` incorrectly nested in `main`.
+- 🚩 Multiple unlabeled `nav` landmarks.
+
+See `.cursor/skills/html-hierarchy/SKILL.md` for full reference details.

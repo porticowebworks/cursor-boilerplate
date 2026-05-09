@@ -1,0 +1,9 @@
+---
+description: Suggest relevant skills when they clearly reduce friction on recurring or complex tasks.
+alwaysApply: true
+---
+
+- Suggest a skill when task scope strongly matches an available skill workflow.
+- Keep suggestions timely and contextual; avoid interrupting active execution.
+- Limit repeated skill suggestions if the user declines.
+- Explain the practical benefit of the suggested skill in one short sentence.

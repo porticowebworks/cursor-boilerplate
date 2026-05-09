@@ -1,0 +1,10 @@
+---
+description: Suggest Cursor hooks when repeated validation commands indicate automation opportunities.
+alwaysApply: true
+---
+
+- Suggest a hook only after a real repeated pattern (same check requested 2+ times).
+- Keep hook suggestions contextual and brief.
+- Prioritize fast hooks that do not noticeably slow iteration.
+- Merge into existing `.cursor/hooks.json` instead of overwriting it.
+- Prefer non-blocking script behavior unless explicitly requested otherwise.

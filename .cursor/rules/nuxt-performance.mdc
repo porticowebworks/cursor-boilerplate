@@ -1,0 +1,21 @@
+---
+description: Enforce Nuxt performance defaults and image/link loading rules when editing Nuxt app files.
+globs: **/*.vue, **/*.ts, nuxt.config.ts
+alwaysApply: false
+---
+
+- Default rendering strategy for marketing pages is SSG/static prerender; exceptions require explicit justification.
+- Never use raw `img` tags for app content; use `NuxtImg`/`NuxtPicture`.
+- Always set image `width` and `height` to prevent CLS.
+- Above-the-fold/hero images: use eager loading with high fetch priority.
+- Below-the-fold images: use lazy loading and responsive `sizes`.
+- Use `NuxtLink` for internal navigation instead of raw internal `<a href>`.
+
+- 🚩 SSR chosen for marketing pages without clear exception case.
+- 🚩 Raw `<img>` used where `NuxtImg`/`NuxtPicture` is expected.
+- 🚩 Image missing explicit dimensions.
+- 🚩 Hero image incorrectly lazy-loaded.
+- 🚩 Internal route uses `<a href>` instead of `NuxtLink`.
+- 🚩 Third-party script embedded as raw `<script>` instead of deferred strategy.
+
+See `.cursor/skills/nuxt-performance/SKILL.md` for full implementation detail.

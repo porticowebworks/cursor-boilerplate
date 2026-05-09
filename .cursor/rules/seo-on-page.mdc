@@ -1,0 +1,21 @@
+---
+description: Enforce core on-page SEO standards whenever building or editing page markup/content.
+globs: **/*.vue, **/*.html
+alwaysApply: false
+---
+
+- Title tags: unique per page, keyword-relevant, readable, and within practical snippet limits.
+- Meta descriptions: unique, specific, human-readable, and value-oriented.
+- Canonical: every indexable page must declare a self-referencing absolute canonical URL.
+- Heading architecture: exactly one `h1`; align page heading structure with page intent/type.
+- Image alt text: descriptive and meaningful; avoid stuffing; decorative images use empty alt.
+- Keep page-level SEO checks aligned to page type (homepage, service/product, blog, location).
+
+- 🚩 Duplicate or vague title tags.
+- 🚩 Missing/duplicate/thin meta descriptions.
+- 🚩 Missing/incorrect canonical tag on indexable page.
+- 🚩 Multiple `h1` or misaligned heading structure.
+- 🚩 Missing/non-descriptive image alt text on meaningful images.
+- 🚩 Page type missing expected SEO-critical elements.
+
+See `.cursor/skills/seo-on-page/SKILL.md` for full reference and checklists.

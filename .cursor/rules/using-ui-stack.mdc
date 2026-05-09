@@ -1,0 +1,11 @@
+---
+description: Apply consistent UI-stack design-system standards for spacing, typography, color, interaction states, and accessibility.
+alwaysApply: true
+---
+
+- Use a consistent spacing scale (8px-based rhythm) across layout and components.
+- Maintain clear color hierarchy with semantic states and dark-mode-safe mappings.
+- Use consistent type scale and readable line-height for body and headings.
+- Ensure interactive elements include default, hover, active, focus, and disabled states.
+- Enforce accessibility basics: semantic elements, contrast, keyboard access, and adequate touch targets.
+- Respect reduced-motion preferences for animations and transitions.

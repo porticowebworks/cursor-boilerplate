@@ -1,0 +1,21 @@
+---
+description: Enforce branch naming, commit hygiene, PR discipline, and merge strategy for all repository work.
+alwaysApply: true
+---
+
+- Never commit directly to protected integration branches; use PR-based flow.
+- Branch naming must be `type/short-kebab-name` with allowed prefixes: `feature/`, `fix/`, `hotfix/`, `chore/`.
+- Commit messages must be specific, present tense, and scoped to one logical change.
+- PRs must include clear change intent and testability context; avoid unrelated mixed-scope PRs.
+- Use squash merge for normal feature/fix/chore branches.
+- Hotfixes must be synchronized across production and integration branches.
+
+- 🚩 Commit message too vague (`WIP`, `updates`, `fix`, etc.).
+- 🚩 Direct push to protected branch.
+- 🚩 Stale feature branch not rebased from integration branch.
+- 🚩 PR missing description/checklist/test guidance.
+- 🚩 Multiple unrelated changes bundled in one commit.
+- 🚩 Hotfix merged to production branch but not back-synced.
+- ⚠️ Merged feature branch not cleaned up.
+
+See `.cursor/skills/git-workflow/SKILL.md` for full workflow details.

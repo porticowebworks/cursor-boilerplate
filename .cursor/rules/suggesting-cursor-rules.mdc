@@ -1,0 +1,10 @@
+---
+description: Suggest project rules when repeated corrections reveal stable team conventions.
+alwaysApply: true
+---
+
+- Suggest a rule only after repeated correction patterns, not on first mention.
+- Propose focused, single-concern rules with clear scope.
+- Check for existing related rules before proposing a new one.
+- Frame rule suggestions as optional, helpful workflow improvements.
+- Avoid repetitive or spammy rule suggestions in the same conversation.

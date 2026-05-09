@@ -1,0 +1,24 @@
+---
+description: Enforce component-based architecture, prop-driven UI, and reusable design-system discipline across the project.
+alwaysApply: true
+---
+
+- Core law: never build monolithic pages; build reusable components and assemble pages from them.
+- Use feature-based architecture for new work; avoid layer-based organization for feature code.
+- Keep presentational and container responsibilities separate.
+- Pass content through typed props; avoid hard-coded copy inside reusable components.
+- Use internal variants (`variant` props) instead of ad-hoc external style overrides.
+- Use design tokens/CSS variables; avoid raw hard-coded style values.
+- Extract repeated logic into focused composables; keep composables single-responsibility.
+- Page files are assembly-only: no component internals, no page-level component logic/styles.
+
+- 🚩 Duplicate markup that should be a reusable component.
+- 🚩 Hard-coded style values instead of tokens.
+- 🚩 Component logic implemented directly in page files.
+- 🚩 Styling variants controlled externally instead of component API.
+- 🚩 Hard-coded content inside components that should be props.
+- 🚩 Primitive obsession for domain props (IDs/slugs/emails as unvalidated plain strings).
+- 🚩 Data-fetching/side effects inside presentational components.
+- 🚩 New feature code added in layer-based structure.
+
+See `.cursor/skills/component-based-design-system/SKILL.md` for full patterns and examples.

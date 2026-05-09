@@ -1,0 +1,22 @@
+---
+description: Enforce internal linking coverage and 2-click reachability in page body content.
+globs: **/*.vue, **/*.html
+alwaysApply: false
+---
+
+- Enforce two rules for body-content links:
+- No orphaned pages: every page must have at least one inbound internal link.
+- 2-click rule: every page must be reachable from home in 2 body-content clicks or fewer.
+
+- Exclusions (do not count for compliance):
+- Links in `header` or `footer`.
+- Nav links that are part of header/footer navigation.
+
+- Required flag format:
+- 🚩 Orphaned page
+- 🚩 2-click rule violation
+- 🚩 2-click rule unverifiable
+- ⚠️ Undeclared page linked
+- ✅ Compliant
+
+See `.cursor/skills/internal-linking-policy/SKILL.md` for full audit procedure and suggestion patterns.

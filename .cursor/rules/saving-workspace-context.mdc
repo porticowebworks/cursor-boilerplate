@@ -1,0 +1,11 @@
+---
+description: Persist useful project context and decisions into workspace context files during normal work.
+alwaysApply: true
+---
+
+- Load existing project context files before starting work when relevant.
+- Persist durable context (research, decisions, reusable templates, constraints) to workspace files.
+- Prefer append-with-date updates over overwriting accumulated context.
+- Keep saved context scannable with clear file names and concise structure.
+- Save non-trivial learnings before ending a task so future sessions can reuse them.
+- Avoid saving trivial or easily re-derived information.

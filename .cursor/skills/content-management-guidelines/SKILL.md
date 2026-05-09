@@ -8,7 +8,10 @@ description: >
   modifying a Payload CMS collection, designing fields, building page builder blocks, setting
   up access control, or reviewing an existing Payload config for correctness.
   Trigger when the user mentions Payload CMS, collections, fields, blocks, access control,
-  roles, schema design, or asks how to structure content in Payload.
+  roles, schema design, or asks how to structure content in Payload. Includes configuration
+  for four standard plugins: plugin-form-builder, plugin-seo, plugin-redirects, and
+  plugin-nested-docs. Trigger also when the user asks about SEO fields in Payload, redirect
+  management, page hierarchies, or form submissions.
 ---
 
 # Payload CMS — Content Management Guidelines
@@ -743,23 +746,230 @@ export default buildConfig({
   collections: [Pages, BlogPosts, Rooms, Media, Users],
   globals:     [SiteSettings],
 
+  plugins: [
+    // See Part 7 for full plugin configuration
+  ],
+
   admin: {
     user: Users.slug,
-    meta: {
-      titleSuffix: '— CMS',
-    },
+    meta: { titleSuffix: '— CMS' },
   },
 
-  // TypeScript strict mode
   typescript: {
     outputFile: 'types/payload-types.ts',
   },
 
-  // Always enable in production
-  cors:        [process.env.NUXT_PUBLIC_SITE_URL || ''],
-  csrf:        [process.env.NUXT_PUBLIC_SITE_URL || ''],
+  cors: [process.env.CORS_URL || ''],
+  csrf: [process.env.CORS_URL || ''],
 })
 ```
+
+---
+
+## Part 7: Official Plugin Configuration
+
+These four plugins are installed on every project. Configure them in `payload.config.ts`.
+
+### 7.1 Plugin Installation
+
+```bash
+npm install @payloadcms/plugin-seo @payloadcms/plugin-redirects @payloadcms/plugin-nested-docs
+# @payloadcms/plugin-form-builder is already installed
+```
+
+### 7.2 `payload.config.ts` — With All Plugins
+
+```typescript
+import { buildConfig }       from 'payload'
+import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
+import { seoPlugin }         from '@payloadcms/plugin-seo'
+import { redirectsPlugin }   from '@payloadcms/plugin-redirects'
+import { nestedDocsPlugin }  from '@payloadcms/plugin-nested-docs'
+import { Pages }             from './collections/Pages'
+import { BlogPosts }         from './collections/BlogPosts'
+import { Rooms }             from './collections/Rooms'
+import { Media }             from './collections/Media'
+import { Users }             from './collections/Users'
+import { SiteSettings }      from './globals/SiteSettings'
+
+export default buildConfig({
+  collections: [Pages, BlogPosts, Rooms, Media, Users],
+  globals:     [SiteSettings],
+
+  plugins: [
+    // Contact/enquiry forms — creates Forms + FormSubmissions collections
+    formBuilderPlugin({
+      fields: { payment: false },  // No payment processing on marketing sites
+    }),
+
+    // SEO fields — injected into Pages, BlogPosts, Rooms automatically
+    // Removes need to manually add SEO group to each collection
+    seoPlugin({
+      uploadsCollection: 'media',
+      generateTitle:     ({ doc }) => `${doc.title} — ${process.env.PAYLOAD_PUBLIC_SITE_NAME}`,
+      generateDescription: ({ doc }) => doc.excerpt || '',
+    }),
+
+    // URL redirect management — editors manage redirects without developer help
+    redirectsPlugin({
+      collections: ['pages', 'blog-posts'],  // Which collections trigger redirect suggestions
+    }),
+
+    // Hierarchical pages — parent/child relationships + breadcrumb generation
+    nestedDocsPlugin({
+      collections: ['pages'],  // Only Pages need hierarchy — not posts or rooms
+    }),
+  ],
+
+  admin: {
+    user: Users.slug,
+    meta: { titleSuffix: '— CMS' },
+  },
+
+  typescript: {
+    outputFile: 'types/payload-types.ts',
+  },
+
+  cors: [process.env.CORS_URL || ''],
+  csrf: [process.env.CORS_URL || ''],
+})
+```
+
+### 7.3 SEO Plugin — What It Does and What to Remove
+
+The `seoPlugin` automatically injects an `seo` group into every collection you configure it
+on. This means:
+
+**Remove the manual SEO group** from any collection where the plugin is active.
+If both exist, the fields will duplicate in the admin UI.
+
+```typescript
+// ❌ Remove this from Pages.ts, BlogPosts.ts, Rooms.ts
+// when seoPlugin is active — the plugin adds it automatically
+{
+  name: 'seo',
+  type: 'group',
+  fields: [
+    { name: 'title',       type: 'text',     maxLength: 60  },
+    { name: 'description', type: 'textarea', maxLength: 160 },
+    { name: 'ogImage',     type: 'upload',   relationTo: 'media' },
+  ],
+},
+```
+
+Collections where the SEO plugin is NOT active (Users, Media, Forms) — keep no SEO group.
+They don't need one.
+
+### 7.4 Nested Docs Plugin — Folder Structure Impact
+
+When `nestedDocsPlugin` is active on `pages`, it adds two fields automatically:
+- `parent` — relationship to another Page document
+- `breadcrumbs` — auto-generated array of ancestors
+
+Do not add these fields manually to the Pages collection — the plugin handles them.
+
+URL path generation from breadcrumbs requires a hook in `nuxt.config.ts` to fetch the
+`breadcrumbs` field and construct the full URL. See the `nuxt-payload-cms-integration`
+skill for the fetch pattern.
+
+### 7.5 Redirects Plugin — Editor Workflow
+
+The plugin creates a `redirects` collection in the admin UI. Editors can:
+- Add a `from` URL and a `to` URL or document relationship
+- Choose redirect type: 301 (permanent) or 302 (temporary)
+
+Nuxt must consume the redirects collection at build time for SSG. Add to `nuxt.config.ts`:
+
+```typescript
+// Fetch redirects from Payload at build time and inject into Nitro
+nitro: {
+  routeRules: {
+    // Populated dynamically from Payload redirects collection at build time
+  },
+},
+```
+
+[Uncertain — verify before implementing] The exact Nuxt integration for consuming Payload
+redirects at SSG build time requires a `nuxt.config.ts` hook or a build plugin. The pattern
+varies by Nuxt version — verify against current Nuxt 4 docs before implementing.
+
+### 7.6 Plugin Decision Table (Per Project)
+
+| Plugin | Default | When to remove |
+|---|---|---|
+| `plugin-form-builder` | ✅ Always | Never — every site has at least a contact form |
+| `plugin-seo` | ✅ Always | Never — removes manual SEO field work |
+| `plugin-redirects` | ✅ Always | Only if client has no existing URLs to redirect from |
+| `plugin-nested-docs` | ✅ Always | Only if all pages are flat with no hierarchy |
+
+---
+
+## Part 8: Blog Schema — Default Collections
+
+Every project scaffolds a full blog system at init time. Three collections, one admin group.
+
+### Admin Sidebar Order
+
+The `Blog` group appears in the Payload sidebar with collections in this exact order:
+1. **Posts** (`blog-posts`) — primary content
+2. **Categories** (`blog-categories`) — taxonomy groupings
+3. **Tags** (`blog-tags`) — granular labels
+
+This order is controlled by the sequence of collections in `payload.config.ts`. Do not
+reorder them.
+
+### BlogPosts — Key Design Decisions
+
+| Feature | Implementation | Why |
+|---|---|---|
+| Drafts + autosave | `versions: { drafts: { autosave: { interval: 2000 } } }` | Editors never lose work; publish when ready |
+| Version history | `maxPerDoc: 20` | Full revision trail, rollback available |
+| Status | `draft` / `published` / `archived` — select field | Archived keeps content without showing it |
+| Auto publishedAt | `beforeChange` hook sets on first publish | Editor doesn't need to set it manually |
+| Reading time | `beforeChange` hook — 200 words/minute estimate | Auto-calculated, read-only in admin |
+| Rich text | Full Lexical toolbar including inline `CalloutBlock` | WordPress shortcode equivalent |
+| Related posts | Relationship, `hasMany`, `maxRows: 3` | Manual curation, max 3 |
+| Live preview | URL wired to `/blog/[slug]/preview` on Nuxt frontend | Editor sees changes before publish |
+| SEO fields | Injected by `plugin-seo` — no manual group needed | `generateURL` wired to `/blog/[slug]` |
+
+### Sidebar Fields (position: 'sidebar')
+
+These fields appear in the right sidebar panel in the Payload post editor:
+`slug`, `status`, `publishedAt`, `author`, `categories`, `tags`, `readingTimeMinutes`,
+`isFeatured`, `disableIndex`
+
+### What NOT to Add to BlogPosts
+
+- No manual `seo` group — `plugin-seo` injects this automatically
+- No `comments` field — out of scope for marketing sites
+- No `parent` field — posts are flat, not hierarchical (use `pages` for hierarchy)
+- No `likes` or `views` counter — requires server-side tracking, not a CMS field
+
+### BlogCategories — Hierarchy Support
+
+Categories support one level of parent-child nesting via the `parent` relationship field.
+The frontend is responsible for rendering nested category navigation — Payload stores
+the relationship, not the rendered tree.
+
+### Tags vs Categories
+
+| | Categories | Tags |
+|---|---|---|
+| Volume | Few (5–15) | Many (unlimited) |
+| Hierarchy | Yes (parent field) | No (flat) |
+| Purpose | Broad topic groupings | Specific, cross-cutting labels |
+| Example | "Hotel Operations", "Travel Tips" | "kochi", "monsoon", "sustainability" |
+
+### Access Control Summary
+
+| Collection | read | create | update | delete |
+|---|---|---|---|---|
+| BlogPosts | `isPublishedOrLoggedIn` | `isAdminOrEditor` | `isAdminOrEditor` | `isAdmin` |
+| BlogCategories | `isPublic` | `isAdminOrEditor` | `isAdminOrEditor` | `isAdmin` |
+| BlogTags | `isPublic` | `isAdminOrEditor` | `isAdminOrEditor` | `isAdmin` |
+
+Categories and Tags use `isPublic` for read — they power listing pages and must be
+accessible without auth.
 
 ---
 
@@ -797,3 +1007,22 @@ export default buildConfig({
 - [ ] `delete` restricted to `isAdmin` — editors cannot delete
 - [ ] `role` field on Users has `update: isAdmin` field-level access
 - [ ] Media `read` is `isPublic` — image URLs must be accessible
+
+### Plugins
+- [ ] `plugin-form-builder` installed and configured (`payment: false`)
+- [ ] `plugin-seo` installed — manual SEO groups removed from active collections
+- [ ] `plugin-redirects` installed — `collections` array set to `['pages', 'blog-posts']`
+- [ ] `plugin-nested-docs` installed — `collections` array set to `['pages']`
+- [ ] No manual `parent` or `breadcrumbs` fields on Pages — plugin adds these automatically
+- [ ] No manual SEO group on collections covered by `plugin-seo`
+
+### Blog schema (created at init — verify after scaffolding)
+- [ ] `cms/src/collections/blog/BlogPosts.ts` exists
+- [ ] `cms/src/collections/blog/BlogCategories.ts` exists
+- [ ] `cms/src/collections/blog/BlogTags.ts` exists
+- [ ] All three imported in `payload.config.ts` in order: BlogPosts, BlogCategories, BlogTags
+- [ ] All three have `group: 'Blog'` in `admin` config
+- [ ] `versions` with `drafts` and `autosave` enabled on BlogPosts
+- [ ] No manual `seo` group on BlogPosts — `plugin-seo` handles it
+- [ ] `plugin-seo` `generateURL` returns `/blog/[slug]` for `blog-posts`
+- [ ] `plugin-redirects` includes `'blog-posts'` in collections array

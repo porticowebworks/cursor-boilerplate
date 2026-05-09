@@ -118,6 +118,11 @@ Rules:
 
 ## Layer 2: Title and Meta Signals
 
+> **Payload CMS projects:** Meta title, description, and OG image fields on content
+> collections are managed via `@payloadcms/plugin-seo` — not added manually per collection.
+> The fields defined in this skill map directly to the plugin's injected fields.
+> `seo.title` → plugin's `meta.title`, `seo.description` → plugin's `meta.description`.
+
 ### 2.1 Title Tag
 
 The single most important on-page SEO element. Used as the clickable headline in search results.

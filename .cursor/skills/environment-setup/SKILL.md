@@ -224,6 +224,21 @@ cd project-name
 npm install
 ```
 
+`apps/cms` standard plugin set includes:
+- `@payloadcms/plugin-form-builder`
+- `@payloadcms/plugin-seo`
+- `@payloadcms/plugin-redirects`
+- `@payloadcms/plugin-nested-docs`
+
+If plugin packages are missing in an existing project, install from `apps/cms`:
+
+```bash
+npm install @payloadcms/plugin-form-builder \
+            @payloadcms/plugin-seo \
+            @payloadcms/plugin-redirects \
+            @payloadcms/plugin-nested-docs
+```
+
 ### Step 2 — Configure environment variables
 
 ```bash
